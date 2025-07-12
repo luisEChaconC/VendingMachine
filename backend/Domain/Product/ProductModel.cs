@@ -1,6 +1,6 @@
 ﻿namespace Backend.Domain.Product
 {
-    public class Product(string name, decimal price, int stock, string imagePath, Guid? id = null)
+    public class ProductModel(string name, decimal price, int stock, string imagePath, Guid? id = null)
     {
         public Guid Id { get; } = id ?? Guid.NewGuid();
         public string Name { get; } = name;
