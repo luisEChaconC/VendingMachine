@@ -1,4 +1,4 @@
-﻿namespace Backend.Domain.Product;
+﻿namespace Backend.Domain;
 
 public class ProductModel(string name, decimal price, int stock, string imagePath, Guid? id = null)
 {

@@ -1,4 +1,4 @@
-using Backend.Domain.Product;
+using Backend.Domain;
 
 namespace Backend.Application.Dtos;
 

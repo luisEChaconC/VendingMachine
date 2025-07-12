@@ -1,5 +1,5 @@
 using Backend.Application.Ports;
-using Backend.Domain.Product;
+using Backend.Domain;
 
 namespace Backend.Infrastructure.Product;
 
