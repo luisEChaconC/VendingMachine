@@ -1,7 +1,7 @@
 using Backend.Application.Queries.Product;
 using Backend.Application.Ports;
 using Backend.Infrastructure.Product;
-using Backend.Domain;
+using Backend.Domain.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

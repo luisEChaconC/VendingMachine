@@ -1,7 +1,7 @@
 using AutoFixture;
 using Backend.Application.Queries.Product;
 using Backend.Application.Ports;
-using Backend.Domain;
+using Backend.Domain.Models;
 using Moq;
 
 namespace VendingMachine.Tests.Application.Queries.Product;
