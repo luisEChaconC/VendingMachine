@@ -1,10 +1,24 @@
+using Backend.Application.Queries.Product;
+using Backend.Application.Ports;
+using Backend.Infrastructure.Product;
 using Backend.Domain.Product;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Presentation layer dependencies
+// Queries
+builder.Services.AddScoped<IGetAllProductsQuery, GetAllProductsQuery>();
+
+// Application layer dependencies
+//Repositories
+builder.Services.AddScoped<IReadOnlyProductRepository, ProductRepository>();
+
+// Infrastructure layer dependencies
+// Product dictionary
 builder.Services.AddSingleton<IDictionary<Guid, ProductModel>>(provider =>
 {
     var productDictionary = new Dictionary<Guid, ProductModel>();
@@ -31,5 +45,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();
