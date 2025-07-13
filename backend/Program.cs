@@ -36,6 +36,21 @@ builder.Services.AddSingleton<IDictionary<Guid, ProductModel>>(provider =>
     return productDictionary;
 });
 
+// Cash Inventory
+builder.Services.AddSingleton<IDictionary<DenominationEnum, int>>(provider =>
+{
+    var cashInventory = new Dictionary<DenominationEnum, int>
+    {
+        { DenominationEnum.Bill1000, 0 },
+        { DenominationEnum.Coin500, 20 },
+        { DenominationEnum.Coin100, 30 },
+        { DenominationEnum.Coin50, 50 },
+        { DenominationEnum.Coin25, 25 }
+    };
+
+    return cashInventory;
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
