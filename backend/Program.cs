@@ -1,7 +1,10 @@
+using Backend.Domain.Models;
+using Backend.Domain.Enums;
 using Backend.Application.Queries.Product;
+using Backend.Application.Commands.Purchase;
 using Backend.Application.Ports;
-using Backend.Infrastructure.Product;
-using Backend.Domain;
+using Backend.Infrastructure.Repositories.Product;
+using Backend.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,11 +16,19 @@ builder.Services.AddSwaggerGen();
 // Queries
 builder.Services.AddScoped<IGetAllProductsQuery, GetAllProductsQuery>();
 
+// Commands
+builder.Services.AddScoped<IPurchaseProductCommand, PurchaseProductCommand>();
+
 // Application layer dependencies
 //Repositories
 builder.Services.AddScoped<IReadOnlyProductRepository, ProductRepository>();
+builder.Services.AddScoped<IWriteOnlyProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // Infrastructure layer dependencies
+// Services
+builder.Services.AddScoped<ICashInventoryService, CashInventoryService>();
+
 // Product dictionary
 builder.Services.AddSingleton<IDictionary<Guid, ProductModel>>(provider =>
 {
@@ -34,6 +45,21 @@ builder.Services.AddSingleton<IDictionary<Guid, ProductModel>>(provider =>
     productDictionary.Add(product4.Id, product4);
 
     return productDictionary;
+});
+
+// Cash Inventory
+builder.Services.AddSingleton<IDictionary<DenominationEnum, int>>(provider =>
+{
+    var cashInventory = new Dictionary<DenominationEnum, int>
+    {
+        { DenominationEnum.Bill1000, 0 },
+        { DenominationEnum.Coin500, 20 },
+        { DenominationEnum.Coin100, 30 },
+        { DenominationEnum.Coin50, 50 },
+        { DenominationEnum.Coin25, 25 }
+    };
+
+    return cashInventory;
 });
 
 var app = builder.Build();

@@ -1,6 +1,6 @@
 using AutoFixture;
 using Backend.Application.Dtos;
-using Backend.Domain;
+using Backend.Domain.Models;
 
 namespace VendingMachine.Tests.Application.Dtos;
 
