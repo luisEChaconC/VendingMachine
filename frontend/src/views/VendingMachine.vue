@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <div class="row justify-content-center">
-      <div class="col-md-8">
+      <div class="col-md-10">
         <div class="card shadow">
           <div class="card-body p-0">
             <table class="table table-striped table-hover mb-0">
@@ -10,6 +10,7 @@
                   <th scope="col">Nombre</th>
                   <th scope="col" class="text-center">Precio</th>
                   <th scope="col" class="text-center">Unidades Disponibles</th>
+                  <th scope="col" class="text-center">Cantidad</th>
                 </tr>
               </thead>
               <tbody>
@@ -17,9 +18,18 @@
                   v-for="product in products" 
                   :key="product.id" 
                   :product="product"
+                  :quantity="quantities[product.id] || 0"
+                  @quantity-changed="updateQuantity"
                 />
               </tbody>
             </table>
+          </div>
+          <div class="card-footer bg-light">
+            <div class="row">
+              <div class="col-md-6">
+                <strong>Costo Total: {{ formatPrice(totalCost) }}</strong>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -38,8 +48,19 @@ export default {
   },
   data() {
     return {
-      products: []
+      products: [],
+      quantities: {}
     };
+  },
+  computed: {
+    totalCost() {
+      let total = 0;
+      for (const product of this.products) {
+        const quantity = this.quantities[product.id] || 0;
+        total += product.price * quantity;
+      }
+      return total;
+    }
   },
   async mounted() {
     await this.fetchProducts();
@@ -52,6 +73,12 @@ export default {
       } catch (error) {
         console.error('Error fetching products:', error);
       }
+    },
+    updateQuantity(productId, newQuantity) {
+      this.quantities[productId] = newQuantity;
+    },
+    formatPrice(price) {
+      return `₵${price.toFixed(0)}`;
     }
   }
 };
