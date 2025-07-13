@@ -60,6 +60,12 @@
             </button>
           </div>
         </div>
+
+        <PurchaseResultModal
+          :show="showModal"
+          :result="purchaseResult"
+          @close="closePurchaseResult"
+        />
       </div>
     </div>
   </div>
@@ -69,19 +75,22 @@
 import axios from 'axios';
 import ProductRow from '../components/ProductRow.vue';
 import DenominationRow from '../components/DenominationRow.vue';
+import PurchaseResultModal from '../components/PurchaseResultModal.vue';
 
 export default {
   name: 'VendingMachine',
   components: {
     ProductRow,
-    DenominationRow
+    DenominationRow,
+    PurchaseResultModal
   },
   data() {
     return {
       products: [],
       quantities: {},
       payment: {},
-      denominations: [1000, 500, 100, 50, 25]
+      denominations: [1000, 500, 100, 50, 25],
+      purchaseResult: null
     };
   },
   computed: {
@@ -103,6 +112,9 @@ export default {
     },
     canPurchase() {
       return this.totalCost > 0 && this.totalPaid >= this.totalCost;
+    },
+    showModal() {
+      return this.purchaseResult !== null;
     }
   },
   async mounted() {
@@ -153,8 +165,14 @@ export default {
 
         const response = await axios.post('/api/purchase', purchaseRequest);
         
-        console.log('Purchase successful:', response.data);
-        alert('Compra realizada exitosamente!');
+        const changeDenominations = response.data.denominations || {};
+        const changeAmount = this.calculateChangeAmount(changeDenominations);
+        
+        this.purchaseResult = {
+          success: true,
+          changeAmount: changeAmount,
+          changeBreakdown: changeDenominations
+        };
         
         this.quantities = {};
         this.payment = {};
@@ -162,12 +180,54 @@ export default {
         
       } catch (error) {
         console.error('Error making purchase:', error);
+        
         if (error.response && error.response.data) {
-          alert(`Error: ${error.response.data.message}`);
+          const errorData = error.response.data;
+          
+          this.purchaseResult = {
+            success: false,
+            message: this.getErrorMessage(errorData.error)
+          };
         } else {
-          alert('Error al procesar la compra');
+          this.purchaseResult = {
+            success: false,
+            message: 'Error al procesar la compra'
+          };
         }
       }
+    },
+    calculateChangeAmount(denominations) {
+      const denominationMap = {
+        'Bill1000': 1000,
+        'Coin500': 500,
+        'Coin100': 100,
+        'Coin50': 50,
+        'Coin25': 25
+      };
+      
+      let total = 0;
+      for (const [denom, quantity] of Object.entries(denominations)) {
+        const denominationValue = denominationMap[denom] || parseInt(denom);
+        const qty = parseInt(quantity) || 0;
+        if (!isNaN(denominationValue) && !isNaN(qty)) {
+          total += denominationValue * qty;
+        }
+      }
+      return total;
+    },
+    closePurchaseResult() {
+      this.purchaseResult = null;
+    },
+    getErrorMessage(errorType) {
+      const errorMessages = {
+        'ProductNotFound': 'Producto no encontrado',
+        'InsufficientStock': 'Stock insuficiente para completar la compra',
+        'InsufficientPayment': 'El pago ingresado es insuficiente',
+        'InsufficientChange': 'Fallo al realizar la compra. No hay suficiente cambio disponible.',
+        'DuplicateProduct': 'Producto duplicado en la solicitud'
+      };
+      
+      return errorMessages[errorType] || 'Error al procesar la compra';
     },
     formatPrice(price) {
       return `₵${price.toFixed(0)}`;
